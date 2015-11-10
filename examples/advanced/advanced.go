@@ -25,8 +25,8 @@ import (
 	_ "github.com/pierrre/imageserver/image/bmp"
 	imageserver_image_gamma "github.com/pierrre/imageserver/image/gamma"
 	_ "github.com/pierrre/imageserver/image/gif"
+	imageserver_image_gift "github.com/pierrre/imageserver/image/gift"
 	_ "github.com/pierrre/imageserver/image/jpeg"
-	imageserver_image_nfntresize "github.com/pierrre/imageserver/image/nfntresize"
 	_ "github.com/pierrre/imageserver/image/png"
 	_ "github.com/pierrre/imageserver/image/tiff"
 	imageserver_testdata "github.com/pierrre/imageserver/testdata"
@@ -190,7 +190,6 @@ func newServer() imageserver.Server {
 	srv := imageserver_testdata.Server
 	srv = newServerImage(srv)
 	srv = newServerLimit(srv)
-	srv = newServerValidate(srv)
 	srv = newServerGroupcache(srv)
 	srv = newServerCacheMemory(srv)
 	return srv
@@ -200,7 +199,7 @@ func newServerImage(srv imageserver.Server) imageserver.Server {
 	return &imageserver_image.Server{
 		Server: srv,
 		Processor: imageserver_image_gamma.NewCorrectionProcessor(
-			&imageserver_image_nfntresize.Processor{},
+			&imageserver_image_gift.Processor{},
 			true,
 		),
 	}
@@ -208,14 +207,6 @@ func newServerImage(srv imageserver.Server) imageserver.Server {
 
 func newServerLimit(srv imageserver.Server) imageserver.Server {
 	return imageserver.NewLimitServer(srv, runtime.GOMAXPROCS(0)*2)
-}
-
-func newServerValidate(srv imageserver.Server) imageserver.Server {
-	return &imageserver_image_nfntresize.ValidateParamsServer{
-		Server:    srv,
-		WidthMax:  2048,
-		HeightMax: 2048,
-	}
 }
 
 func newServerGroupcache(srv imageserver.Server) imageserver.Server {
